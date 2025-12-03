@@ -123,3 +123,80 @@ This result suggests that while tree-based models are effective at capturing the
 2. **Hyperparameter Tuning:** Optimizing the hyperparameters (especially for XGBoost and Random Forest) to potentially improve their performance and close the gap with the Decision Tree.
 
 3. **Outlier Analysis:** Investigating the large residuals (implied by the high MSE/MAE) to see if outliers are skewing the results.
+
+---
+
+## About Inventory-TensorFlow.ipynb
+
+# Deep Learning Regression for Business Profit Prediction
+
+This document summarizes the steps taken in the provided Python script, which focuses on predicting business profit using various Deep Neural Network (DNN) architectures. The workflow covers data preparation, feature engineering, advanced preprocessing, model definition, training, and comparative evaluation.
+
+---
+
+## 1. Project Setup and Data Preparation
+
+- **Libraries:** pandas, tensorflow/keras, sklearn, seaborn.
+- **Reproducibility:** Seeds are set for NumPy and TensorFlow to ensure consistent results.
+- **Data Source:** `ML-Dataset.csv` (400 rows, 28 columns)
+- **Target Variable:** `Profit` (a continuous numerical value)
+
+---
+
+## 2. Feature Selection and Engineering
+
+### Data Cleaning and Leakage Mitigation
+- Non-predictive columns and those causing potential data leakage (`ProductStandardCost`, `ProductListPrice`, customer/employee PII) were dropped.
+
+### Temporal Feature Engineering
+- `OrderDate` column was converted to datetime.
+- Three new numerical features were extracted, then the original column was dropped:
+  - `Order_Month`
+  - `Order_Year`
+  - `Order_Weekday` (Day of the week)
+
+---
+
+## 3. Preprocessing Pipeline
+
+- Data split: 80% training, 20% testing.
+- **ColumnTransformer** used to prepare features:
+  - **Numerical Features:** Scaled using `StandardScaler` (e.g., `CustomerCreditLimit`)
+  - **Categorical Features:** Encoded using `OneHotEncoder`
+- After preprocessing, the input dimension for the neural networks is **498 features**.
+
+---
+
+## 4. Deep Learning Architectures
+
+Four distinct DNN models were defined and trained, all incorporating **L2 Regularization (0.001)** and using a **Huber Loss function**:
+
+| Model Name                   | Type                  | Layers               | Key Features                                                |
+|-------------------------------|---------------------|--------------------|------------------------------------------------------------|
+| `Simple_DNN_3_Layers_L2`     | Shallow              | 3 Dense Layers      | Baseline architecture (64, 32 units)                       |
+| `Deep_DNN_6_Layers_L2`       | Deep                 | 6 Dense Layers      | High capacity (256, 128, 64, 64, 32 units)                |
+| `Regularized_DNN_Robust`     | Deep, Robust         | 3 Dense Layers + Regulators | Incorporates BatchNormalization and Dropout (0.3)       |
+| `Wide_Network_L2`             | Wide                 | 2 Dense Layers      | Fewer layers but high width (512 units)                    |
+
+---
+
+## 5. Training and Results
+
+- All models trained for up to **300 epochs** using `EarlyStopping` and `ReduceLROnPlateau` callbacks for stabilization.
+
+### Model Performance Comparison (Test Set)
+
+| Model                        | MAE (Mean Absolute Error) | MSE (Mean Squared Error) | R² (Coefficient of Determination) |
+|-------------------------------|---------------------------|-------------------------|----------------------------------|
+| `Wide_Network_L2`             | 105.86                    | 543474                  | 0.081                            |
+| `Simple_DNN_3_Layers_L2`      | 179.46                    | 269499                  | -0.469                           |
+| `Deep_DNN_6_Layers_L2`        | 179.83                    | 569775                  | -0.475                           |
+| `Regularized_DNN_Robust`      | 206.09                    | 587848                  | -0.857                           |
+
+---
+
+## Conclusion
+
+- **Best Model:** `Wide_Network_L2` achieved the lowest MAE (**105.87**) and highest $R^2$ (**0.081**).  
+- **Observation:** The generally low and often negative $R^2$ scores indicate that the current features are insufficient for highly accurate profit prediction. Models perform worse than predicting the average profit.  
+- **Key Recommendation:** Focus on advanced feature engineering or testing highly effective non-linear models like Gradient Boosting Machines (XGBoost, LightGBM) before iterating further on DNN architectures.
