@@ -128,6 +128,7 @@ This result suggests that while tree-based models are effective at capturing the
 
 ## About Inventory-TensorFlow.ipynb
 
+
 # Deep Learning Regression for Business Profit Prediction
 
 This document summarizes the steps taken in the provided Python script, which focuses on predicting business profit using various Deep Neural Network (DNN) architectures. The workflow covers data preparation, feature engineering, advanced preprocessing, model definition, training, and comparative evaluation.
@@ -207,4 +208,73 @@ PS: Keep in mind the values can vary depending on the run.
 
 ## About Inventory-PyTorch.ipynb
 
+# PyTorch Deep Learning Regression Model Comparison for Profit Prediction
+
+## 1. Project Overview
+
+This project implements and compares four different Deep Neural Network (DNN) architectures built using PyTorch for a regression task. The goal is to predict the **Profit** of a business based on various transactional and customer features from the provided dataset (*ML-Dataset.csv*).
+
+The script follows a full machine learning pipeline:  
+data cleaning, feature engineering, standardized preprocessing using `sklearn.ColumnTransformer`, conversion to PyTorch Tensors and DataLoaders, training with custom callbacks (Early Stopping, Learning Rate Scheduling), and final performance evaluation.
+
+---
+
+## 2. Data Preprocessing Pipeline
+
+To prepare the structured data for neural networks, a comprehensive preprocessing strategy was used:
+
+| Stage                     | Action                                                                 | Libraries / Tools |
+|--------------------------|-------------------------------------------------------------------------|-------------------|
+| Feature Engineering      | Extracted `Order_Month`, `Order_Year`, `Order_Weekday` from `OrderDate`. | Pandas            |
+| Data Leakage Mitigation  | Dropped columns directly related to the target (e.g., `ProductStandardCost`, `ProductListPrice`) and non-predictive identifiers. | Pandas |
+| Scaling                  | Numerical features scaled using `StandardScaler`.                       | Scikit-learn      |
+| Encoding                 | Categorical features transformed using `OneHotEncoder`.                 | Scikit-learn      |
+| Data Split               | Training, Validation (20% of train), Test (20% of total).                | Scikit-learn      |
+| PyTorch Conversion       | NumPy arrays converted to `torch.tensor` and wrapped in `DataLoader`.    | PyTorch           |
+
+---
+
+## 3. PyTorch Model Architectures
+
+Four distinct neural networks were developed to explore depth, width, and regularization.
+
+| Model Name                   | Description                                   | Key Features |
+|-----------------------------|-----------------------------------------------|--------------|
+| **Simple_DNN_3_Layers_L2**  | Baseline, minimal depth.                     | 3 Dense layers (64, 32, 1). Uses **L2 Regularization** (`λ = 0.001`). |
+| **Deep_DNN_6_Layers_L2**    | Deep, high complexity.                       | 6 Dense layers up to 256 neurons. Uses **L2 Regularization**. |
+| **Regularized_DNN_Robust**  | Deep + heavy regularization.                 | BatchNorm + Dropout (0.3). Uses **RMSprop**. |
+| **Wide_Network_L2**         | Shallow but wide.                            | 2 Dense layers (512, 1). Uses Dropout (0.2) + **L2 Regularization**. |
+
+---
+
+## 4. Training Configuration
+
+| Parameter        | Value             | Details |
+|------------------|-------------------|---------|
+| **Loss Function** | `nn.SmoothL1Loss` | Huber-like, robust to outliers. |
+| **Optimizer**     | Adam (default) or RMSprop | LR = 0.001, Weight Decay = 0.001. |
+| **Epochs**        | 300 (max)        | Early stopping applied. |
+| **Batch Size**    | 64               | Efficient GPU/CPU use. |
+| **Early Stopping** | Patience = 20    | Stops if no val-loss improvement. |
+| **LR Scheduler**  | `ReduceLROnPlateau` | Reduces LR by factor 0.5 if no improvement for 5 steps. |
+
+---
+
+## 5. Model Comparison Results
+
+| Model                      | MAE              | MSE               | R² Score |
+|---------------------------|------------------|-------------------|----------|
+| **Deep_DNN_6_Layers_L2**  | 101.749          | 41127.092         | 0.130    |
+| **Wide_Network_L2**       | 105.075          | 41634.660         | 0.120    |
+| **Regularized_DNN_Robust**| 106.968          | 43557.861         | 0.079    |
+| **Simple_DNN_3_Layers_L2**| 128.954          | 53063.318         | -0.122   |
+
+---
+
+## Summary
+
+- The **Deep_DNN_6_Layers_L2** achieved the best performance with an R² score of **0.130** and MAE of **101.75**.  
+- The MAE indicates the model’s predictions are off by about **\$101.75** on average.  
+- The overall low R² values suggest the relationship between features and target is complex, nonlinear, or strongly influenced by unobserved variables.  
+- PyTorch allowed granular control over training loops, losses, and callbacks, enabling explicit implementations of regularization and optimization strategies.
 
