@@ -200,3 +200,11 @@ Four distinct DNN models were defined and trained, all incorporating **L2 Regula
 - **Best Model:** `Wide_Network_L2` achieved the lowest MAE (**105.87**) and highest $R^2$ (**0.081**).  
 - **Observation:** The generally low and often negative $R^2$ scores indicate that the current features are insufficient for highly accurate profit prediction. Models perform worse than predicting the average profit.  
 - **Key Recommendation:** Focus on advanced feature engineering or testing highly effective non-linear models like Gradient Boosting Machines (XGBoost, LightGBM) before iterating further on DNN architectures.
+- 
+PS: Keep in mind the values can vary depending on the run.
+
+---
+
+## About Inventory-PyTorch.ipynb
+
+
